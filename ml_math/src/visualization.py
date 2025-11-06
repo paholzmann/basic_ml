@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt # type: ignore
+import matplotlib.gridspec as gridspec # type: ignore
 import numpy as np # type: ignore
 from .activations import Activations
 
@@ -10,13 +11,17 @@ class Visualization:
         
         """
         self.activations = Activations()
-
-    def visualize_one_line(self, x, y, func_name):
+    # -------------------------------------------------- UTILITIES --------------------------------------------------
+    def visualize_one_activation(self, x, func_name):
         """
         
         """
+        if not hasattr(self.activations, func_name):
+            raise ValueError(f"Unknown activation function: {func_name}")
+        func = getattr(self.activations, func_name)
+        y = func(x)
         plt.figure(figsize=(8, 5))
-        plt.plot(x, y, label=func_name, color="blue")
+        plt.plot(x, y, label=func_name)
         plt.title(f"{func_name} function")
         plt.xlabel("x")
         plt.ylabel(f"{func_name}(x)")
@@ -24,34 +29,34 @@ class Visualization:
         plt.axhline(0, color="black", linewidth=0.5)
         plt.axvline(0, color="black", linewidth=0.5)
         plt.legend()
-        plt.show()      
-    # -------------------------------------------------- LINEAR & CLASSIC ACTIVATIONS --------------------------------------------------
-    def visualize_linear(self, x):
+        plt.show()
+        plt.close()      
+ 
+    def visualize_family(self, x, func_name_arr):
         """
         
         """
-        y = self.activations.linear(x=x)
-        self.visualize_one_line(x=x, y=y, func_name="Linear")
+        num_plots = len(func_name_arr)
+        fig = plt.figure(figsize=(8, 4 * ((num_plots + 1) // 2)))
+        gs = gridspec.GridSpec((num_plots + 1) // 2, 2, figure=fig)
 
-    def visualize_binary_step(self, x):
-        """
-        
-        """
-        y = self.activations.binary_step(x=x)
-        self.visualize_one_line(x=x, y=y, func_name="Binary step")
-    
-    # -------------------------------------------------- SIGMOID FAMILY --------------------------------------------------
-    def visualize_sigmoid(self, x):
-        """
-        Visualisiert die Sigmoid-Aktivierungsfunktion.
-        """
-        y = self.activations.sigmoid(x=x)
-        self.visualize_one_line(x=x, y=y, func_name="Sigmoid")
+        for i, func_name in enumerate(func_name_arr):
+            if not hasattr(self.activations, func_name):
+                raise ValueError(f"Unknown activation function: {func_name}")
+            func = getattr(self.activations, func_name)
+            y = func(x)
+            if num_plots % 2 == 1 and i == num_plots - 1:
+                ax = fig.add_subplot(gs[i // 2, :])
+            else:
+                ax = fig.add_subplot(gs[i // 2, i % 2])
 
-    
-
-        
-x = np.linspace(-10, 10, 1000)
-Visualization().visualize_linear(x=x)
-Visualization().visualize_binary_step(x=x)
-Visualization().visualize_sigmoid(x=x)
+            ax.plot(x, y, label=func_name)
+            ax.set_title(func_name)
+            ax.set_xlabel("x")
+            ax.set_ylabel(f"{func_name}(x)")
+            ax.grid(True)
+            ax.axhline(0, color="black", linewidth=0.5)
+            ax.axvline(0, color="black", linewidth=0.5)
+            ax.legend()
+        plt.tight_layout()
+        plt.show()
