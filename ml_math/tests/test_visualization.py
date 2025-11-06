@@ -51,6 +51,18 @@ class TestVisualization:
         for x in self.input_data:
             self.visualization.visualize_one_activation(x=x, func_name=func_name)
 
+    @pytest.mark.parametrize("func_name", [
+        "this function does not exist",
+        "invalid_function"])
+    def test_visualize_one_activation_invalid(self, func_name, mocker):
+        """
+        
+        """
+        mocker.patch("matplotlib.pyplot.show")
+        for x in self.input_data:
+            with pytest.raises(ValueError):
+                self.visualization.visualize_one_activation(x=x, func_name=func_name)
+
     @pytest.mark.parametrize("func_name_arr", [
         ["linear", "binary_step", "elu"],
         ["sigmoid", "tanh", "hard_sigmoid", "hard_tanh"],
@@ -58,7 +70,6 @@ class TestVisualization:
         ["softmax", "log_softmax"],
         ["softsign", "sin", "cos", "arctan", "bent_identity", "gaussian", "rbf"]
     ])
-    
     def test_visualize_family(self, func_name_arr, mocker):
         """
         
@@ -66,3 +77,15 @@ class TestVisualization:
         mocker.patch("matplotlib.pyplot.show")
         for x in self.input_data:
             self.visualization.visualize_family(x=x, func_name_arr=func_name_arr)
+
+    @pytest.mark.parametrize("func_name_arr", [
+        ["this function does not exist", "this function does also not exist"],
+        ["invalid_function", "invalid_function_as_well"]])
+    def test_visualize_family_invalid(self, func_name_arr, mocker):
+        """
+        
+        """
+        mocker.patch("matplotlib.pyplot.show")
+        for x in self.input_data:
+            with pytest.raises(ValueError):
+                self.visualization.visualize_family(x=x, func_name_arr=func_name_arr)
